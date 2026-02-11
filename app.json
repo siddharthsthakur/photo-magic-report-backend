@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "Fathom Marine",
+    "slug": "fathom-marine",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b3c5d"
+    },
+
+    "assetBundlePatterns": ["**/*"],
+
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to take photos for inspection reports.",
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to select images for inspection reports."
+      },
+      "bundleIdentifier": "com.yourcompany.fathommarine"
+    },
+
+    "android": {
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#0b3c5d"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "com.yourcompany.fathommarine"
+    },
+
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them in inspection reports.",
+          "cameraPermission": "The app uses your camera to take photos for inspection reports."
+        }
+      ]
+    ],
+
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
+  }
+}
