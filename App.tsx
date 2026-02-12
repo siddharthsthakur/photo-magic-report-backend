@@ -22,18 +22,17 @@ const logo = require("./assets/logo.png");
 const API_URL = "http://192.168.1.47:8000";
 
 /* ================= COLORS ================= */
-const BLUE_PRIMARY = "#1E40AF";       // Primary blue
-const BLUE_SECONDARY = "#3B82F6";     // Secondary blue
-const BLUE_LIGHT = "#60A5FA";         // Light blue
-const BLUE_SOFT = "#EFF6FF";          // Very light blue for backgrounds
-const WHITE = "#FFFFFF";              // Pure white
-const GRAY_DARK = "#374151";          // Dark gray for text
-const GRAY_MEDIUM = "#6B7280";        // Medium gray
-const GRAY_LIGHT = "#D1D5DB";         // Light gray for borders
-const GRAY_SOFT = "#F3F4F6";          // Very light gray for backgrounds
-const GREEN = "#10B981";              // Success green
-const RED = "#EF4444";                // Error red
-const AMBER = "#F59E0B";              // Warning amber
+const NAVY = "#0A2540";
+const NAVY_SOFT = "#123A63";
+const WHITE = "#FFFFFF";
+const SOFT_GRAY = "#F2F4F7";
+const GRAY_BORDER = "#E5E7EB";
+const TEXT_DARK = "#0F172A";
+const TEXT_MUTED = "#6B7280";
+const GREEN = "#10B981";
+const RED = "#EF4444";
+const BLUE = "#3B82F6";
+const AMBER = "#F59E0B";
 
 /* ================= CONSTANTS ================= */
 const EVEN_IMAGE_OPTIONS = Array.from({ length: 10 }, (_, i) => (i + 1) * 2);
@@ -99,8 +98,27 @@ export default function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   
-  // REMOVED: Pre-login default profiles
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([
+    {
+      id: "1",
+      profilePicture: "",
+      name: "Captain John Smith",
+      company: "Fathom Marine Services",
+      position: "Senior Marine Surveyor",
+      phone: "+1 (555) 123-4567",
+      email: "john.smith@fathommarine.com",
+      signature: "",
+      experience: "15 years",
+      certifications: ["IMO Inspector", "Class Surveyor", "ISM Auditor"],
+      shipTypes: ["Tanker (Oil/Chemical/Gas)", "Bulk Carrier", "Container Ship"],
+      licenseNumber: "MSI-2023-0456",
+      issuingAuthority: "International Maritime Organization",
+      expiryDate: "2025-12-31",
+      address: "123 Maritime Blvd, Port City, PC 10001",
+      emergencyContact: "+1 (555) 987-6543 (Sarah Smith)",
+      notes: "Specialized in tanker inspections and safety audits",
+    }
+  ]);
   
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
@@ -483,6 +501,10 @@ export default function App() {
         <TouchableOpacity style={styles.btn} onPress={() => setScreen("details")} activeOpacity={0.85}>
           <Text style={styles.btnText}>LOGIN</Text>
         </TouchableOpacity>
+
+        <Text style={styles.profileHint}>
+          You can create and manage inspection profiles after login
+        </Text>
       </SafeAreaView>
     );
   }
@@ -537,7 +559,7 @@ export default function App() {
               onPress={() => {
                 if (profiles.length > 0) {
                   Alert.alert(
-                    "Select Profile",
+                    "Select Inspector Profile (Optional)",
                     "Choose an inspector profile:",
                     [
                       ...profiles.map((profile) => ({
@@ -548,13 +570,12 @@ export default function App() {
                         text: "Enter Manually",
                         onPress: () => {
                           setSelectedProfile(null);
+                          setDetails({...details, inspector: ""});
                         },
                         style: "default"
                       }
                     ]
                   );
-                } else {
-                  Alert.alert("No Profiles", "Create a profile first to use this feature.");
                 }
               }}
             >
@@ -610,6 +631,7 @@ export default function App() {
                 <Text style={styles.profileName}>{selectedProfile.name}</Text>
                 <Text style={styles.profilePosition}>{selectedProfile.position}</Text>
                 <Text style={styles.profileCompany}>{selectedProfile.company}</Text>
+                <Text style={styles.profileOptionalLabel}>(Optional Profile)</Text>
               </View>
             </View>
             
@@ -664,9 +686,9 @@ export default function App() {
           <View style={styles.createProfileContent}>
             <Text style={styles.createProfileIcon}>👨‍✈️</Text>
             <View style={styles.createProfileTexts}>
-              <Text style={styles.createProfileTitle}>Manage Inspector Profiles</Text>
+              <Text style={styles.createProfileTitle}>Create / Manage Inspector Profiles</Text>
               <Text style={styles.createProfileSubtitle}>
-                {profiles.length} saved profile{profiles.length !== 1 ? 's' : ''}
+                {profiles.length} saved profile(s) - Optional but recommended
               </Text>
             </View>
             <Text style={styles.createProfileArrow}>›</Text>
@@ -692,6 +714,10 @@ export default function App() {
               </View>
 
               <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+                <Text style={styles.modalNote}>
+                  💡 Profiles are optional but save time. You can always enter inspector details manually.
+                </Text>
+
                 {/* Profile Picture */}
                 <TouchableOpacity style={styles.profilePictureSelect} onPress={pickProfilePicture}>
                   {newProfile.profilePicture ? (
@@ -699,7 +725,7 @@ export default function App() {
                   ) : (
                     <View style={styles.profilePicturePlaceholderLarge}>
                       <Text style={styles.profilePictureIcon}>👨‍✈️</Text>
-                      <Text style={styles.profilePictureHint}>Add photo</Text>
+                      <Text style={styles.profilePictureHint}>Tap to add photo (Optional)</Text>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -726,13 +752,13 @@ export default function App() {
                 />
                 <TextInput
                   style={styles.modalInput}
-                  placeholder="Years of Experience"
+                  placeholder="Years of Experience (Optional)"
                   value={newProfile.experience}
                   onChangeText={(t) => setNewProfile({...newProfile, experience: t})}
                 />
 
                 {/* Contact Information */}
-                <Text style={styles.sectionTitle}>Contact Information</Text>
+                <Text style={styles.sectionTitle}>Contact Information (Optional)</Text>
                 <TextInput
                   style={styles.modalInput}
                   placeholder="Phone Number"
@@ -762,7 +788,7 @@ export default function App() {
                 />
 
                 {/* Professional Details */}
-                <Text style={styles.sectionTitle}>Professional Details</Text>
+                <Text style={styles.sectionTitle}>Professional Details (Optional)</Text>
                 <TextInput
                   style={styles.modalInput}
                   placeholder="License/Certificate Number"
@@ -783,7 +809,8 @@ export default function App() {
                 />
 
                 {/* Certifications */}
-                <Text style={styles.sectionTitle}>Certifications</Text>
+                <Text style={styles.sectionTitle}>Certifications (Optional)</Text>
+                <Text style={styles.sectionSubtitle}>Select applicable certifications:</Text>
                 <View style={styles.chipContainer}>
                   {CERTIFICATIONS.map((cert) => (
                     <TouchableOpacity
@@ -805,7 +832,8 @@ export default function App() {
                 </View>
 
                 {/* Ship Types */}
-                <Text style={styles.sectionTitle}>Ship Type Specializations</Text>
+                <Text style={styles.sectionTitle}>Ship Type Specializations (Optional)</Text>
+                <Text style={styles.sectionSubtitle}>Select ship types you inspect:</Text>
                 <View style={styles.chipContainer}>
                   {SHIP_TYPES.map((type) => (
                     <TouchableOpacity
@@ -827,7 +855,7 @@ export default function App() {
                 </View>
 
                 {/* Signature */}
-                <Text style={styles.sectionTitle}>Signature</Text>
+                <Text style={styles.sectionTitle}>Signature (Optional)</Text>
                 <TouchableOpacity style={styles.signatureBtn} onPress={pickSignature}>
                   <Text style={styles.signatureBtnText}>
                     {newProfile.signature ? "Change Signature Image" : "Upload Signature Image"}
@@ -838,7 +866,7 @@ export default function App() {
                 )}
 
                 {/* Notes */}
-                <Text style={styles.sectionTitle}>Additional Notes</Text>
+                <Text style={styles.sectionTitle}>Additional Notes (Optional)</Text>
                 <TextInput
                   style={[styles.modalInput, { height: 80 }]}
                   placeholder="Any additional information..."
@@ -877,10 +905,10 @@ export default function App() {
                 )}
 
                 {/* Existing Profiles Section */}
-                <Text style={styles.existingProfilesTitle}>Saved Profiles ({profiles.length})</Text>
+                <Text style={styles.existingProfilesTitle}>Existing Profiles ({profiles.length})</Text>
                 {profiles.length === 0 ? (
                   <Text style={styles.noProfilesText}>
-                    No profiles saved yet
+                    No profiles saved yet. Create your first profile to save time!
                   </Text>
                 ) : (
                   profiles.map((profile) => (
@@ -953,7 +981,7 @@ export default function App() {
                         </TouchableOpacity>
                         
                         {selectedProfile?.id === profile.id && (
-                          <Text style={styles.currentlySelectedText}>✓ Selected</Text>
+                          <Text style={styles.currentlySelectedText}>✓ Currently Selected</Text>
                         )}
                       </View>
                     </View>
@@ -1056,6 +1084,7 @@ export default function App() {
               <View>
                 <Text style={styles.previewProfileName}>{selectedProfile.name}</Text>
                 <Text style={styles.previewProfileCompany}>{selectedProfile.company}</Text>
+                <Text style={styles.previewOptionalLabel}>(Using saved profile)</Text>
               </View>
             </View>
             <Text style={styles.previewProfileDetail}>
@@ -1072,6 +1101,9 @@ export default function App() {
             <Text style={styles.previewManualText}>
               Inspector: <Text style={styles.previewManualValue}>{details.inspector}</Text>
             </Text>
+            <Text style={styles.previewNote}>
+              ℹ️ No profile selected. Inspector details will be basic.
+            </Text>
           </View>
         )}
 
@@ -1086,7 +1118,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.center}>
       <BackButton />
-      <Text style={styles.pageTitle}>Inspection Saved </Text>
+      <Text style={styles.pageTitle}>Inspection Saved 🎉</Text>
 
       {selectedProfile ? (
         <View style={styles.reviewProfile}>
@@ -1096,11 +1128,17 @@ export default function App() {
           <Text style={styles.reviewDetail}>
             {selectedProfile.position} at {selectedProfile.company}
           </Text>
+          <Text style={styles.reviewDetail}>
+            License: {selectedProfile.licenseNumber}
+          </Text>
         </View>
       ) : (
         <View style={styles.reviewProfile}>
           <Text style={styles.reviewText}>
             Inspection completed by <Text style={styles.reviewHighlight}>{details.inspector}</Text>
+          </Text>
+          <Text style={styles.reviewNote}>
+            ℹ️ No profile was used for this inspection.
           </Text>
         </View>
       )}
@@ -1122,12 +1160,12 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: "center", 
     padding: 24, 
-    backgroundColor: GRAY_SOFT 
+    backgroundColor: SOFT_GRAY 
   },
   page: { 
     padding: 24, 
     paddingTop: 80, 
-    backgroundColor: GRAY_SOFT,
+    backgroundColor: SOFT_GRAY,
     minHeight: "100%",
   },
 
@@ -1143,13 +1181,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     elevation: 4,
     zIndex: 1000,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   backText: { 
     fontSize: 22, 
     fontWeight: "800", 
-    color: BLUE_PRIMARY 
+    color: NAVY 
   },
 
   logo: { 
@@ -1162,53 +1198,54 @@ const styles = StyleSheet.create({
     fontSize: 26, 
     fontWeight: "800", 
     textAlign: "center", 
-    color: BLUE_PRIMARY 
+    color: NAVY 
   },
   subtitle: { 
     textAlign: "center", 
     marginBottom: 32, 
-    color: GRAY_MEDIUM 
+    color: TEXT_MUTED 
+  },
+  profileHint: {
+    textAlign: "center",
+    marginTop: 20,
+    color: TEXT_MUTED,
+    fontSize: 12,
+    fontStyle: "italic",
   },
 
   pageTitle: { 
     fontSize: 22, 
     fontWeight: "800", 
     marginBottom: 22, 
-    color: GRAY_DARK 
+    color: TEXT_DARK 
   },
   label: { 
     fontWeight: "700", 
     marginBottom: 8, 
-    color: BLUE_PRIMARY 
+    color: NAVY 
   },
 
   input: {
     backgroundColor: WHITE,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
-    fontSize: 14,
-    color: GRAY_DARK,
+    borderColor: GRAY_BORDER,
   },
 
   btn: {
-    backgroundColor: BLUE_PRIMARY,
+    backgroundColor: NAVY,
     paddingVertical: 18,
-    borderRadius: 12,
+    borderRadius: 22,
     alignItems: "center",
     marginTop: 18,
     elevation: 5,
-    shadowColor: BLUE_PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
   },
   btnSmall: {
-    backgroundColor: BLUE_PRIMARY,
-    paddingVertical: 14,
-    borderRadius: 10,
+    backgroundColor: NAVY,
+    paddingVertical: 16,
+    borderRadius: 20,
     flex: 1,
     marginHorizontal: 6,
     alignItems: "center",
@@ -1216,38 +1253,30 @@ const styles = StyleSheet.create({
   },
   btnText: { 
     color: WHITE, 
-    fontWeight: "700", 
-    fontSize: 15,
-    letterSpacing: 0.5 
+    fontWeight: "800", 
+    letterSpacing: 0.6 
   },
 
   btnOutline: {
     borderWidth: 2,
-    borderColor: BLUE_PRIMARY,
+    borderColor: NAVY,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 22,
     alignItems: "center",
     marginTop: 16,
     backgroundColor: WHITE,
   },
   btnOutlineText: { 
-    color: BLUE_PRIMARY, 
-    fontWeight: "700",
-    fontSize: 15,
+    color: NAVY, 
+    fontWeight: "800" 
   },
 
   card: {
     backgroundColor: WHITE,
-    borderRadius: 16,
+    borderRadius: 22,
     padding: 20,
     marginBottom: 20,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    elevation: 3,
   },
 
   row: { 
@@ -1258,20 +1287,14 @@ const styles = StyleSheet.create({
   gridImg: { 
     width: "100%", 
     height: 135, 
-    borderRadius: 10, 
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderRadius: 18, 
+    marginBottom: 8 
   },
   desc: {
-    backgroundColor: BLUE_SOFT,
+    backgroundColor: SOFT_GRAY,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: 16,
     marginBottom: 14,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
-    fontSize: 13,
-    color: GRAY_DARK,
   },
 
   /* Profile Button at Bottom */
@@ -1281,15 +1304,13 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     backgroundColor: WHITE,
-    borderRadius: 14,
+    borderRadius: 20,
     padding: 16,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   createProfileContent: {
     flexDirection: "row",
@@ -1299,7 +1320,6 @@ const styles = StyleSheet.create({
   createProfileIcon: {
     fontSize: 28,
     marginRight: 12,
-    color: BLUE_SECONDARY,
   },
   createProfileTexts: {
     flex: 1,
@@ -1307,16 +1327,16 @@ const styles = StyleSheet.create({
   createProfileTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginBottom: 4,
   },
   createProfileSubtitle: {
     fontSize: 12,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
   },
   createProfileArrow: {
     fontSize: 24,
-    color: BLUE_PRIMARY,
+    color: NAVY,
     fontWeight: "bold",
   },
 
@@ -1328,12 +1348,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     top: 10,
-    backgroundColor: BLUE_SECONDARY,
+    backgroundColor: NAVY_SOFT,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: BLUE_PRIMARY,
+    borderRadius: 12,
   },
   profileSelectText: {
     color: WHITE,
@@ -1344,18 +1362,16 @@ const styles = StyleSheet.create({
   /* Profile Card */
   profileCard: {
     backgroundColor: WHITE,
-    borderRadius: 14,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: BLUE_SECONDARY,
+    borderLeftColor: BLUE,
     elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   profileCardHeader: {
     flexDirection: "row",
@@ -1370,13 +1386,13 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 2,
-    borderColor: BLUE_SECONDARY,
+    borderColor: NAVY_SOFT,
   },
   profilePicturePlaceholder: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: BLUE_SECONDARY,
+    backgroundColor: NAVY_SOFT,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1391,18 +1407,24 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginBottom: 2,
   },
   profilePosition: {
     fontSize: 14,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     marginBottom: 2,
     fontWeight: "600",
   },
   profileCompany: {
     fontSize: 13,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
+  },
+  profileOptionalLabel: {
+    fontSize: 11,
+    color: TEXT_MUTED,
+    fontStyle: "italic",
+    marginTop: 2,
   },
   profileDetails: {
     marginBottom: 12,
@@ -1413,13 +1435,13 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     fontWeight: "600",
     width: 100,
   },
   detailValue: {
     fontSize: 13,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     flex: 1,
   },
   profileActionRow: {
@@ -1430,13 +1452,11 @@ const styles = StyleSheet.create({
   clearProfileBtn: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: GRAY_SOFT,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    backgroundColor: SOFT_GRAY,
+    borderRadius: 12,
   },
   clearProfileText: {
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -1444,7 +1464,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: AMBER,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   editSelectedText: {
     color: WHITE,
@@ -1461,15 +1481,15 @@ const styles = StyleSheet.create({
   imageButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: 18,
     alignItems: "center",
-    backgroundColor: BLUE_SOFT,
+    backgroundColor: SOFT_GRAY,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
     marginHorizontal: 5,
   },
   imageButtonText: {
-    color: BLUE_PRIMARY,
+    color: NAVY,
     fontWeight: "600",
     fontSize: 13,
   },
@@ -1487,16 +1507,16 @@ const styles = StyleSheet.create({
   },
   previewLabel: {
     fontSize: 12,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     marginBottom: 6,
     fontWeight: "500",
   },
   previewImage: {
     width: 100,
     height: 100,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
   },
 
   /* Modal Styles */
@@ -1507,11 +1527,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: WHITE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
     maxHeight: "90%",
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   modalHeader: {
     flexDirection: "row",
@@ -1519,27 +1537,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: GRAY_LIGHT,
-    backgroundColor: BLUE_SOFT,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderBottomColor: GRAY_BORDER,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
   },
   modalClose: {
     fontSize: 24,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     fontWeight: "300",
   },
   modalBody: {
     padding: 20,
-    backgroundColor: GRAY_SOFT,
   },
   modalSpacer: {
     height: 30,
+  },
+  
+  /* Modal Note */
+  modalNote: {
+    backgroundColor: SOFT_GRAY,
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    fontSize: 13,
+    color: TEXT_DARK,
+    borderLeftWidth: 3,
+    borderLeftColor: AMBER,
   },
   
   /* Profile Picture in Modal */
@@ -1552,50 +1578,54 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: BLUE_PRIMARY,
+    borderColor: NAVY,
   },
   profilePicturePlaceholderLarge: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: BLUE_SOFT,
+    backgroundColor: SOFT_GRAY,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 3,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
+    borderStyle: "dashed",
   },
   profilePictureIcon: {
     fontSize: 40,
     marginBottom: 8,
-    color: BLUE_SECONDARY,
   },
   profilePictureHint: {
     fontSize: 12,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
   },
 
   /* Modal Inputs */
   modalInput: {
-    backgroundColor: WHITE,
+    backgroundColor: SOFT_GRAY,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
     fontSize: 14,
-    color: GRAY_DARK,
   },
 
   /* Sections */
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginTop: 16,
     marginBottom: 10,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: GRAY_LIGHT,
+    borderBottomColor: GRAY_BORDER,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: TEXT_MUTED,
+    marginBottom: 10,
   },
 
   /* Chips for selections */
@@ -1605,22 +1635,22 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   chip: {
-    backgroundColor: WHITE,
+    backgroundColor: SOFT_GRAY,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
     marginRight: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
   },
   chipSelected: {
-    backgroundColor: BLUE_SECONDARY,
-    borderColor: BLUE_PRIMARY,
+    backgroundColor: BLUE,
+    borderColor: BLUE,
   },
   chipText: {
     fontSize: 12,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
   },
   chipTextSelected: {
     color: WHITE,
@@ -1629,13 +1659,11 @@ const styles = StyleSheet.create({
 
   /* Signature */
   signatureBtn: {
-    backgroundColor: BLUE_SECONDARY,
+    backgroundColor: NAVY_SOFT,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: BLUE_PRIMARY,
   },
   signatureBtnText: {
     color: WHITE,
@@ -1647,24 +1675,19 @@ const styles = StyleSheet.create({
     height: 80,
     alignSelf: "center",
     marginBottom: 16,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
-    backgroundColor: WHITE,
+    borderColor: GRAY_BORDER,
   },
 
   /* Save Button */
   saveProfileBtn: {
-    backgroundColor: BLUE_PRIMARY,
+    backgroundColor: GREEN,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: "center",
     marginVertical: 20,
     elevation: 3,
-    shadowColor: BLUE_PRIMARY,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
   },
   saveProfileText: {
     color: WHITE,
@@ -1675,16 +1698,16 @@ const styles = StyleSheet.create({
 
   /* Use Current Profile Button */
   useCurrentProfileBtn: {
-    backgroundColor: WHITE,
+    backgroundColor: SOFT_GRAY,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
   },
   useCurrentProfileText: {
-    color: BLUE_PRIMARY,
+    color: NAVY,
     fontWeight: "600",
     fontSize: 14,
   },
@@ -1693,31 +1716,26 @@ const styles = StyleSheet.create({
   existingProfilesTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginBottom: 12,
     marginTop: 20,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: GRAY_LIGHT,
+    borderTopColor: GRAY_BORDER,
   },
   noProfilesText: {
     textAlign: "center",
     padding: 20,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     fontStyle: "italic",
-    backgroundColor: WHITE,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   existingProfileCard: {
-    backgroundColor: WHITE,
-    borderRadius: 12,
+    backgroundColor: SOFT_GRAY,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
-    elevation: 1,
+    borderColor: GRAY_BORDER,
   },
   existingProfileHeader: {
     flexDirection: "row",
@@ -1735,14 +1753,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   existingProfilePicturePlaceholder: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: BLUE_SECONDARY,
+    backgroundColor: NAVY_SOFT,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -1755,12 +1771,12 @@ const styles = StyleSheet.create({
   existingProfileName: {
     fontSize: 15,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginBottom: 2,
   },
   existingProfileCompany: {
     fontSize: 12,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
   },
   
   /* Profile Actions */
@@ -1771,19 +1787,19 @@ const styles = StyleSheet.create({
   profileActionBtn: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: WHITE,
+    borderRadius: 8,
+    backgroundColor: SOFT_GRAY,
     borderWidth: 1,
-    borderColor: GRAY_LIGHT,
+    borderColor: GRAY_BORDER,
   },
   profileActionText: {
     fontSize: 11,
     fontWeight: "600",
-    color: GRAY_DARK,
+    color: TEXT_DARK,
   },
   editBtn: {
-    backgroundColor: BLUE_LIGHT,
-    borderColor: BLUE_SECONDARY,
+    backgroundColor: AMBER,
+    borderColor: AMBER,
   },
   editBtnText: {
     color: WHITE,
@@ -1799,17 +1815,14 @@ const styles = StyleSheet.create({
   /* Existing Profile Details */
   existingProfileDetails: {
     marginBottom: 10,
-    backgroundColor: BLUE_SOFT,
-    padding: 10,
-    borderRadius: 8,
   },
   existingProfileDetail: {
     fontSize: 12,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     marginBottom: 4,
   },
   detailLabelSmall: {
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     fontWeight: "600",
   },
 
@@ -1820,13 +1833,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   useProfileBtn: {
-    backgroundColor: BLUE_PRIMARY,
+    backgroundColor: NAVY,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: BLUE_PRIMARY,
   },
   useProfileText: {
     color: WHITE,
@@ -1843,13 +1854,11 @@ const styles = StyleSheet.create({
   /* Preview Screen Styles */
   previewProfile: {
     backgroundColor: WHITE,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 24,
     elevation: 3,
     width: "100%",
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   previewProfileHeader: {
     flexDirection: "row",
@@ -1862,13 +1871,13 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
     borderWidth: 2,
-    borderColor: BLUE_SECONDARY,
+    borderColor: NAVY_SOFT,
   },
   previewProfilePicturePlaceholder: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: BLUE_SECONDARY,
+    backgroundColor: NAVY_SOFT,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
@@ -1881,54 +1890,70 @@ const styles = StyleSheet.create({
   previewProfileName: {
     fontSize: 17,
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
     marginBottom: 2,
   },
   previewProfileCompany: {
     fontSize: 14,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
+  },
+  previewOptionalLabel: {
+    fontSize: 11,
+    color: TEXT_MUTED,
+    fontStyle: "italic",
   },
   previewProfileDetail: {
     fontSize: 14,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     marginBottom: 8,
   },
   previewManualText: {
     fontSize: 16,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     marginBottom: 8,
   },
   previewManualValue: {
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
+  },
+  previewNote: {
+    fontSize: 13,
+    color: TEXT_MUTED,
+    fontStyle: "italic",
+    marginTop: 8,
   },
 
   /* Review Screen Styles */
   reviewProfile: {
     backgroundColor: WHITE,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 20,
     marginBottom: 24,
     elevation: 3,
     width: "100%",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: GRAY_LIGHT,
   },
   reviewText: {
     fontSize: 16,
-    color: GRAY_DARK,
+    color: TEXT_DARK,
     marginBottom: 8,
     textAlign: "center",
   },
   reviewHighlight: {
     fontWeight: "700",
-    color: BLUE_PRIMARY,
+    color: NAVY,
   },
   reviewDetail: {
     fontSize: 14,
-    color: GRAY_MEDIUM,
+    color: TEXT_MUTED,
     marginBottom: 4,
+    textAlign: "center",
+  },
+  reviewNote: {
+    fontSize: 13,
+    color: TEXT_MUTED,
+    fontStyle: "italic",
+    marginTop: 8,
     textAlign: "center",
   },
 });
